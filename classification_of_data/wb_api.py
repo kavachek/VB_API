@@ -1,6 +1,6 @@
 from settings.config import API_KEY
 from url_queries.url import BASIC_URL
-from start_algorithm.collecting_information import get_wb_data, filter_data, save_to_excel
+from classification_of_data.collecting_information import get_wb_data, filter_data, save_to_excel
 
 
 def main(start_date, end_date, **filter_params):
