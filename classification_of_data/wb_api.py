@@ -29,7 +29,6 @@ def data(start_date, end_date, **filter_params):
     if all_data:
         save_to_excel(all_data, 'wildberries_data.xlsx')
 
-# Глобальные переменные
 date_from = '2024-09-15'
 date_to = '2024-09-15'
 filters = {'orderType': 'Клиентский'}
