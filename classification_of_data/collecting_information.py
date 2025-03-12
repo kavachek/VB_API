@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import sqlite3
 
 
 def get_wb_data(api_key, in_request, date_from, date_to, flag=0, **filters):
@@ -55,15 +56,22 @@ def filter_data(data, **filters):
     return filtered_data
 
 
-def save_to_csv(data, filename):
+def save_to_sqlite(data, db_file='wildberries.db', table_name='wildberries_data'):
     """
-    Сохраняет данные в csv.
+    Сохраняет данные в SQLite.
 
     :param data: Данные в формате JSON.
-    :param filename: Имя файла.
+    :param db_file: Путь к файлу базы данных SQLite.
+    :param table_name: Название таблицы в БД.
     """
     # Проверка, что данные есть
-    if data:
-        df = pd.DataFrame(data)
-        df.to_csv(filename, index=False)
-    else: return None
+    if not data: return None
+
+    # Создаем DataFrame из данных
+    df = pd.DataFrame(data)
+    conn = sqlite3.connect(db_file)
+
+    try:
+        df.to_sql(table_name, conn, if_exists='replace', index=False)
+    finally:
+        conn.close()
