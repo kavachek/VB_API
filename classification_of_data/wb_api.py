@@ -3,7 +3,7 @@ from url_queries.url import BASIC_URL
 from classification_of_data.collecting_information import get_wb_data, filter_data, save_to_excel
 
 
-def main(start_date, end_date, **filter_params):
+def data(start_date, end_date, **filter_params):
     """
     Главная функция для получения, фильтрации и сохранения данных.
 
@@ -34,4 +34,4 @@ date_from = '2024-09-15'
 date_to = '2024-09-15'
 filters = {'orderType': 'Клиентский'}
 
-main(date_from, date_to, **filters)
+data(date_from, date_to, **filters)
