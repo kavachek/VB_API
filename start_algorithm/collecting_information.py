@@ -9,7 +9,7 @@ def get_wb_data(api_key, in_request, date_from, date_to, flag=0, **filters):
     :param api_key: Ключ к API WB.
     :param in_request: Словарь с URL и шаблоном параметров.
     :param date_from: Дата начала периода (строка в формате 'YYYY-MM-DD').
-    :param date_to: Дата конца периода (опционально, для некоторых эндпоинтов).
+    :param date_to: Дата конца периода (опционально, для некоторых запросов).
     :param flag: Флаг (0 или 1, опционально).
     :param filters: Дополнительные фильтры (например, статус заказа, артикул).
     :return: JSON-ответ или None в случае ошибки.
