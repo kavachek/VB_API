@@ -1,5 +1,5 @@
 # URL для запроса данных (основные).
-basic_url = {
+BASIC_URL = {
     'Orders': {
         'url': 'https://statistics-api.wildberries.ru/api/v1/supplier/orders',
         'params_template': {'date_from': None, 'flag': 0} # Заказы
@@ -23,7 +23,7 @@ basic_url = {
 }
 
 # URL для запроса данных (доп).
-add_url = {
+ADD_URL = {
     'Product_Information': {
         'url': 'https://suppliers-api.wildberries.ru/api/v2/stocks',
         'params_template': {'date_from': None} # Информация о продукте
