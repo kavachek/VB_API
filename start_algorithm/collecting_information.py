@@ -1,0 +1,69 @@
+import requests
+import pandas as pd
+
+
+def get_wb_data(api_key, in_request, date_from, date_to, flag=0, **filters):
+    """
+    Выполняет запрос к API Wildberries.
+
+    :param api_key: Ключ к API WB.
+    :param in_request: Словарь с URL и шаблоном параметров.
+    :param date_from: Дата начала периода (строка в формате 'YYYY-MM-DD').
+    :param date_to: Дата конца периода (опционально, для некоторых эндпоинтов).
+    :param flag: Флаг (0 или 1, опционально).
+    :param filters: Дополнительные фильтры (например, статус заказа, артикул).
+    :return: JSON-ответ или None в случае ошибки.
+    """
+    url = in_request['url']
+    params_url = in_request['params_template'].copy() # Нужно для копирования всех параметров запроса
+
+    params_url['dateFrom'] = date_from
+    if 'dateTo' in params_url: params_url['dateTo'] = date_to
+    if 'flag' in params_url: params_url['flag'] = flag
+
+    # Добавление дополнительных фильтров
+    params_url.update(filters)
+    headers = {'Authorization': api_key}
+
+    # Проверка, что есть подключение к API WB
+    try:
+        response = requests.get(url, params=params_url, headers=headers)
+        response.raise_for_status() # Проверка на ошибки
+        return response.json()
+    except requests.exceptions.RequestException:
+        return None
+
+
+def filter_data(data, **filters):
+    """
+    Фильтрует данные по заданным параметрам.
+
+    :param data: Данные в формате JSON.
+    :param filters: Параметры фильтрации (например, статус заказа, артикул).
+    :return: Отфильтрованные данные.
+    """
+    filtered_data = []
+    for item in data:
+        match = True
+        for key, value in filters.items():
+            if item.get(key) != value:
+                match = False
+                break
+        if match:
+            filtered_data.append(item)
+
+    return filtered_data
+
+
+def save_to_excel(data, filename):
+    """
+    Сохраняет данные в Excel.
+
+    :param data: Данные в формате JSON.
+    :param filename: Имя файла.
+    """
+    # Проверка, что данные есть
+    if data:
+        df = pd.DataFrame(data)
+        df.to_excel(filename, index=False)
+    else: return None
