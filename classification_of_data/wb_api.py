@@ -1,9 +1,9 @@
 from settings.config import API_KEY
 from url_queries.url import BASIC_URL
-from classification_of_data.collecting_information import get_wb_data, filter_data, save_to_excel
+from classification_of_data.collecting_information import get_wb_data, filter_data, save_to_csv
 
 
-def data(start_date, end_date, **filter_params):
+def data_param(start_date, end_date, **filter_params):
     """
     Главная функция для получения, фильтрации и сохранения данных.
 
@@ -27,10 +27,10 @@ def data(start_date, end_date, **filter_params):
 
     # Сохраняем все данные в один файл
     if all_data:
-        save_to_excel(all_data, 'wildberries_data.xlsx')
+        save_to_csv(all_data, 'wildberries_data.csv')
 
 date_from = '2024-09-15'
 date_to = '2024-09-15'
 filters = {'orderType': 'Клиентский'}
 
-data(date_from, date_to, **filters)
+data_param(date_from, date_to, **filters)

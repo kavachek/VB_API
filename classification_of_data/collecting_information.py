@@ -55,9 +55,9 @@ def filter_data(data, **filters):
     return filtered_data
 
 
-def save_to_excel(data, filename):
+def save_to_csv(data, filename):
     """
-    Сохраняет данные в Excel.
+    Сохраняет данные в csv.
 
     :param data: Данные в формате JSON.
     :param filename: Имя файла.
@@ -65,5 +65,5 @@ def save_to_excel(data, filename):
     # Проверка, что данные есть
     if data:
         df = pd.DataFrame(data)
-        df.to_excel(filename, index=False)
+        df.to_csv(filename, index=False)
     else: return None
