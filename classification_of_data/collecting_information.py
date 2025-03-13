@@ -36,12 +36,21 @@ def filter_data(data, **filters):
 
 def save_to_sqlite(data, db_file='wildberries.db', table_name='wildberries_data'):
     """
-    Сохраняет данные в SQLite.
+    Сохраняет данные в SQLite с блокировкой на время записи.
     """
     if not data: return None
 
     df = pd.DataFrame(data)
-    with sqlite3.connect(db_file) as conn: df.to_sql(table_name, conn, if_exists='append', index=False)
+
+    while True:
+        try:
+            with sqlite3.connect(db_file) as conn:
+                conn.execute("PRAGMA busy_timeout = 5000")
+                df.to_sql(table_name, conn, if_exists='append', index=False)
+            break
+        except sqlite3.OperationalError as e:
+            print(f"База данных заблокирована, повторная попытка через 1 секунду. Ошибка: {e}")
+            time.sleep(1)
 
 
 def update_sqlite(api_key, basic_url, db_file='wildberries.db', table_name='wildberries_data'):
@@ -61,18 +70,15 @@ def update_sqlite(api_key, basic_url, db_file='wildberries.db', table_name='wild
                 continue
 
             df = pd.DataFrame(data)
-
-            # Проверяем существующие столбцы в таблице
             cursor.execute(f"PRAGMA table_info({table_name});")
             existing_columns = {column[1] for column in cursor.fetchall()}
 
-            # Добавляем недостающие столбцы в базу
             for column in df.columns:
                 if column not in existing_columns:
                     cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column} TEXT;")
 
-            # Сохраняем данные
             df.to_sql(table_name, conn, if_exists='append', index=False)
+
 
 
 def run_scheduler(api_key, basic_url):
