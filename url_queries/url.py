@@ -19,6 +19,10 @@ BASIC_URL = {
     'Sales_Report': {
         'url': 'https://statistics-api.wildberries.ru/api/v1/supplier/reportDetailByPeriod',
         'params_template': {'dateFrom': None, 'dateTo': None} # Отчет о продажах
+    },
+    'Balance': {
+        'url': 'https://statistics-api.wildberries.ru/api/v1/supplier/balance',
+        'params_template': {'dateFrom': None, 'dateTo': None} # Баланс денег
     }
 }
 
