@@ -13,11 +13,9 @@ def data_param(start_date, end_date, **filter_params):
     for name, in_request in BASIC_URL.items():
         data = get_wb_data(API_KEY, in_request, start_date, end_date, **filter_params)
 
-        if data:
-            all_data.extend(filter_data(data, **filter_params))
+        if data: all_data.extend(filter_data(data, **filter_params))
 
-    if all_data:
-        save_to_sqlite(all_data)
+    if all_data: save_to_sqlite(all_data)
 
 
 if __name__ == "__main__":
@@ -27,5 +25,4 @@ if __name__ == "__main__":
     filters = {'orderType': 'Клиентский'}
     data_param(date_from, date_to, **filters)
 
-    # Запуск планировщика обновления данных
     run_scheduler(API_KEY, BASIC_URL)
