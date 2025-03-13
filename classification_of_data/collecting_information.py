@@ -1,77 +1,93 @@
-import requests
-import pandas as pd
 import sqlite3
+import pandas as pd
+import requests
+from datetime import datetime, timedelta
+import time
+import schedule
 
 
 def get_wb_data(api_key, in_request, date_from, date_to, flag=0, **filters):
     """
     Выполняет запрос к API Wildberries.
-
-    :param api_key: Ключ к API WB.
-    :param in_request: Словарь с URL и шаблоном параметров.
-    :param date_from: Дата начала периода (строка в формате 'YYYY-MM-DD').
-    :param date_to: Дата конца периода (опционально, для некоторых запросов).
-    :param flag: Флаг (0 или 1, опционально).
-    :param filters: Дополнительные фильтры (например, статус заказа, артикул).
-    :return: JSON-ответ или None в случае ошибки.
     """
     url = in_request['url']
-    params_url = in_request['params_template'].copy() # Нужно для копирования всех параметров запроса
-
+    params_url = in_request['params_template'].copy()
     params_url['dateFrom'] = date_from
+
     if 'dateTo' in params_url: params_url['dateTo'] = date_to
     if 'flag' in params_url: params_url['flag'] = flag
 
-    # Добавление дополнительных фильтров
     params_url.update(filters)
     headers = {'Authorization': api_key}
 
-    # Проверка, что есть подключение к API WB
     try:
         response = requests.get(url, params=params_url, headers=headers)
-        response.raise_for_status() # Проверка на ошибки
+        response.raise_for_status()
         return response.json()
-    except requests.exceptions.RequestException:
-        return None
+    except requests.exceptions.RequestException: return None
 
 
 def filter_data(data, **filters):
     """
     Фильтрует данные по заданным параметрам.
-
-    :param data: Данные в формате JSON.
-    :param filters: Параметры фильтрации (например, статус заказа, артикул).
-    :return: Отфильтрованные данные.
     """
-    filtered_data = []
-    for item in data:
-        match = True
-        for key, value in filters.items():
-            if item.get(key) != value:
-                match = False
-                break
-        if match:
-            filtered_data.append(item)
-
-    return filtered_data
+    return [item for item in data if all(item.get(k) == v for k, v in filters.items())]
 
 
 def save_to_sqlite(data, db_file='wildberries.db', table_name='wildberries_data'):
     """
     Сохраняет данные в SQLite.
-
-    :param data: Данные в формате JSON.
-    :param db_file: Путь к файлу базы данных SQLite.
-    :param table_name: Название таблицы в БД.
     """
-    # Проверка, что данные есть
     if not data: return None
 
-    # Создаем DataFrame из данных
     df = pd.DataFrame(data)
-    conn = sqlite3.connect(db_file)
+    with sqlite3.connect(db_file) as conn: df.to_sql(table_name, conn, if_exists='append', index=False)
 
-    try:
-        df.to_sql(table_name, conn, if_exists='replace', index=False)
-    finally:
-        conn.close()
+
+def update_sqlite(api_key, basic_url, db_file='wildberries.db', table_name='wildberries_data'):
+    """
+    Загружает данные из API, обновляет структуру таблицы и сохраняет их в базу данных SQLite.
+    """
+    date_to = datetime.now().strftime('%Y-%m-%d')
+    date_from = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+
+    with sqlite3.connect(db_file) as conn:
+        cursor = conn.cursor()
+
+        for name, in_request in basic_url.items():
+            print(f"Запрашиваем данные для {name}...")
+
+            data = get_wb_data(api_key, in_request, date_from, date_to)
+            if not data:
+                print(f"❌ Данные для {name} не получены.")
+                continue
+
+            df = pd.DataFrame(data)
+
+            # Проверяем существующие столбцы в таблице
+            cursor.execute(f"PRAGMA table_info({table_name});")
+            existing_columns = {column[1] for column in cursor.fetchall()}
+
+            # Добавляем недостающие столбцы в базу
+            for column in df.columns:
+                if column not in existing_columns:
+                    cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column} TEXT;")
+                    print(f"✅ Добавлен новый столбец: {column}")
+
+            # Сохраняем данные
+            df.to_sql(table_name, conn, if_exists='append', index=False)
+            print(f"✅ Данные для {name} успешно сохранены.")
+
+    print("🎉 Обновление базы завершено!")
+
+
+def run_scheduler(api_key, basic_url):
+    """
+    Запускает планировщик для обновления данных каждый час.
+    """
+    update_sqlite(api_key, basic_url)
+    schedule.every().hour.do(update_sqlite, api_key, basic_url)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
