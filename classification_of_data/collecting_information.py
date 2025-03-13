@@ -55,11 +55,9 @@ def update_sqlite(api_key, basic_url, db_file='wildberries.db', table_name='wild
         cursor = conn.cursor()
 
         for name, in_request in basic_url.items():
-            print(f"Запрашиваем данные для {name}...")
-
             data = get_wb_data(api_key, in_request, date_from, date_to)
+
             if not data:
-                print(f"❌ Данные для {name} не получены.")
                 continue
 
             df = pd.DataFrame(data)
@@ -72,13 +70,9 @@ def update_sqlite(api_key, basic_url, db_file='wildberries.db', table_name='wild
             for column in df.columns:
                 if column not in existing_columns:
                     cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column} TEXT;")
-                    print(f"✅ Добавлен новый столбец: {column}")
 
             # Сохраняем данные
             df.to_sql(table_name, conn, if_exists='append', index=False)
-            print(f"✅ Данные для {name} успешно сохранены.")
-
-    print("🎉 Обновление базы завершено!")
 
 
 def run_scheduler(api_key, basic_url):
