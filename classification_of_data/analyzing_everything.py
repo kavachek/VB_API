@@ -1,5 +1,6 @@
 import sqlite3
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 
@@ -11,30 +12,17 @@ def fetch_data_from_db(db_file='wildberries.db', table_name='wildberries_data'):
     :param table_name: Название таблицы.
     :return: DataFrame с данными.
     """
-    try:
-        # Подключаемся к базе данных
-        conn = sqlite3.connect(db_file)
+    # Подключаемся к базе данных
+    conn = sqlite3.connect(db_file)
 
-        # Читаем данные в DataFrame
-        query = f"SELECT * FROM {table_name};"
-        df = pd.read_sql_query(query, conn)
+    # Читаем данные в DataFrame
+    query = f"SELECT * FROM {table_name};"
+    df = pd.read_sql_query(query, conn)
 
-        # Закрываем соединение
-        conn.close()
+    # Закрываем соединение
+    conn.close()
 
-        return df
-    except Exception as e:
-        print(f"Ошибка при чтении данных из базы данных: {e}")
-        return None
-
-
-def send_notification(message):
-    """
-    Отправляет уведомление (в данном случае просто выводит в консоль).
-
-    :param message: Текст уведомления.
-    """
-    print(f"Уведомление: {message}")
+    return df
 
 
 def analyzing_sales():
@@ -44,14 +32,9 @@ def analyzing_sales():
     # Чтение данных из базы данных
     df = fetch_data_from_db()
 
-    if df is None or df.empty:
-        print("Ошибка: Не удалось загрузить данные из базы данных.")
-        return
-
-    # Проверяем, есть ли столбец с датами
-    if 'date' not in df.columns:
-        print("Ошибка: В данных отсутствует столбец 'date'.")
-        return
+    # Две проверки на подключение и проверки столбца 'date'
+    if df is None or df.empty: return None
+    if 'date' not in df.columns: return None
 
     # Преобразование даты в формат datetime
     df['date'] = pd.to_datetime(df['date'])
@@ -61,138 +44,84 @@ def analyzing_sales():
     df['day'] = df['date'].dt.date
     df['week'] = df['date'].dt.isocalendar().week
     df['month'] = df['date'].dt.month
+    df['year'] = df['date'].dt.year
 
-    # Выручка (totalPrice) и прибыль (finishedPrice)
-    daily_sales = df.groupby('day')['totalPrice'].sum()
+    # Фильтрация данных: оставляем только заказы, которые не были отменены (isCancel = 0)
+    df = df[df['isCancel'] == 0]
 
-    # Средний чек
-    if 'quantity' in df.columns:
-        df['average_check'] = df['totalPrice'] / df['quantity']
-    else:
-        df['average_check'] = df['totalPrice']  # Если количество не указано
+    # 1. Анализ заказов по городам (warehouseName)
+    orders_by_city = df['warehouseName'].value_counts().reset_index()
+    orders_by_city.columns = ['warehouseName', 'order_count']
 
-    # 2. Анализ заказов
-    # Количество новых заказов
-    if 'orderType' in df.columns:
-        new_orders = df[df['orderType'] == 'Клиентский'].groupby('day').size()
-    else:
-        new_orders = df.groupby('day').size()  # Если тип заказа не указан
+    # 2. Анализ заказов по странам (countryName)
+    orders_by_country = df['countryName'].value_counts().reset_index()
+    orders_by_country.columns = ['countryName', 'order_count']
 
-    # Статусы заказов
-    if 'orderType' in df.columns:
-        order_status = df['orderType'].value_counts()
-    else:
-        order_status = None
+    # 3. Анализ цен по городам
+    prices_by_city = df.groupby('warehouseName')['finishedPrice'].agg(['sum', 'mean']).reset_index()
+    prices_by_city.columns = ['warehouseName', 'total_revenue', 'average_price']
 
-    # 3. Анализ остатков
-    # Текущие остатки на складах
-    if 'warehouseName' in df.columns and 'quantity' in df.columns:
-        current_stock = df.groupby('warehouseName')['quantity'].sum()
-    else:
-        current_stock = None
+    # 4. Анализ цен по странам
+    prices_by_country = df.groupby('countryName')['finishedPrice'].agg(['sum', 'mean']).reset_index()
+    prices_by_country.columns = ['countryName', 'total_revenue', 'average_price']
 
-    # Прогнозирование остатков (пример: на основе средних продаж)
-    if current_stock is not None:
-        average_daily_sales = daily_sales.mean()
-        forecast_stock = current_stock - (average_daily_sales * 30)  # Прогноз на 30 дней
-    else:
-        forecast_stock = None
+    # 5. Соотношение заказов по городам и странам
+    city_country_orders = df.groupby(['warehouseName', 'countryName']).size().reset_index(name='order_count')
 
-    # 4. Анализ возвратов
-    # Процент возвратов
-    if 'isCancel' in df.columns:
-        total_orders = df.shape[0]
-        returned_orders = df[df['isCancel'] == 1].shape[0]  # isCancel = 1 для возвратов
-        return_percentage = (returned_orders / total_orders) * 100
-    else:
-        return_percentage = None
+    # Визуализация данных
+    plt.figure(figsize=(18, 12))
 
-    # Причины возвратов (если данные доступны)
-    if 'cancelReason' in df.columns:
-        return_reasons = df['cancelReason'].value_counts()
-    else:
-        return_reasons = None
-
-    # 5. Визуализация
-    plt.figure(figsize=(15, 12))  # Увеличиваем размер фигуры для добавления нового графика
-
-    # График динамики продаж по дням
+    # График заказов по городам
     plt.subplot(3, 2, 1)
-    daily_sales.plot(kind='line', title='Динамика продаж по дням')
-    plt.xlabel('День')
-    plt.ylabel('Выручка')
+    sns.barplot(x='order_count', y='warehouseName', data=orders_by_city, palette='viridis')
+    plt.title('Топ городов по количеству заказов (без отмен)')
+    plt.xlabel('Количество заказов')
+    plt.ylabel('Город')
 
-    # График количества новых заказов
+    # График заказов по странам
     plt.subplot(3, 2, 2)
-    new_orders.plot(kind='bar', title='Количество новых заказов по дням')
-    plt.xlabel('День')
-    plt.ylabel('Количество заказов')
+    sns.barplot(x='order_count', y='countryName', data=orders_by_country, palette='magma')
+    plt.title('Топ стран по количеству заказов (без отмен)')
+    plt.xlabel('Количество заказов')
+    plt.ylabel('Страна')
 
-    # График текущих остатков на складах (если данные доступны)
-    if current_stock is not None:
-        plt.subplot(3, 2, 3)
-        current_stock.plot(kind='bar', title='Текущие остатки на складах')
-        plt.xlabel('Склад')
-        plt.ylabel('Количество')
+    # График общей выручки по городам
+    plt.subplot(3, 2, 3)
+    sns.barplot(x='total_revenue', y='warehouseName', data=prices_by_city, palette='plasma')
+    plt.title('Общая выручка по городам (без отмен)')
+    plt.xlabel('Общая выручка')
+    plt.ylabel('Город')
 
-    # График прогнозируемых остатков (если данные доступны)
-    if forecast_stock is not None:
-        plt.subplot(3, 2, 4)
-        forecast_stock.plot(kind='bar', title='Прогнозируемые остатки через 30 дней')
-        plt.xlabel('Склад')
-        plt.ylabel('Количество')
+    # График средней цены по городам
+    plt.subplot(3, 2, 4)
+    sns.barplot(x='average_price', y='warehouseName', data=prices_by_city, palette='coolwarm')
+    plt.title('Средняя цена заказа по городам (без отмен)')
+    plt.xlabel('Средняя цена')
+    plt.ylabel('Город')
 
-    # Круговая диаграмма для возвратов (если данные доступны)
-    if return_percentage is not None:
-        plt.subplot(3, 2, 5)
-        plt.pie([return_percentage, 100 - return_percentage], labels=['Возвраты', 'Остальные'], autopct='%1.1f%%')
-        plt.title('Процент возвратов')
+    # График общей выручки по странам
+    plt.subplot(3, 2, 5)
+    sns.barplot(x='total_revenue', y='countryName', data=prices_by_country, palette='inferno')
+    plt.title('Общая выручка по странам (без отмен)')
+    plt.xlabel('Общая выручка')
+    plt.ylabel('Страна')
 
-    # Сохраняем график в файл
+    # График средней цены по странам
+    plt.subplot(3, 2, 6)
+    sns.barplot(x='average_price', y='countryName', data=prices_by_country, palette='cividis')
+    plt.title('Средняя цена заказа по странам (без отмен)')
+    plt.xlabel('Средняя цена')
+    plt.ylabel('Страна')
+
     plt.tight_layout()
-    plt.savefig('sales_analysis.png', dpi=300, bbox_inches='tight')  # Сохранение графика
     plt.show()
 
-    # 6. Детализированные таблицы
-    print("\nДетализированные данные:")
-    print(df)  # Вывод всей таблицы
+    return {
+        'orders_by_city': orders_by_city,
+        'orders_by_country': orders_by_country,
+        'prices_by_city': prices_by_city,
+        'prices_by_country': prices_by_country,
+        'city_country_orders': city_country_orders,
+    }
 
-    # 7. Уведомления
-    # Уведомление о критических остатках
-    if current_stock is not None:
-        critical_stock_threshold = 100  # Порог для критических остатков
-        for warehouse, stock in current_stock.items():
-            if stock < critical_stock_threshold:
-                send_notification(f"Критические остатки на складе {warehouse}: {stock} единиц")
-
-    # Уведомление о резком изменении продаж
-    if len(daily_sales) > 1:
-        sales_drop_threshold = 0.5  # Порог для падения продаж (50%)
-        last_sales = daily_sales.iloc[-1]
-        previous_sales = daily_sales.iloc[-2]
-        if last_sales < previous_sales * (1 - sales_drop_threshold):
-            send_notification(f"Резкое падение продаж: с {previous_sales} до {last_sales}")
-
-    # Вывод дополнительной информации
-    print(f"\nСредний чек: {df['average_check'].mean():.2f}")
-    if return_percentage is not None:
-        print(f"Процент возвратов: {return_percentage:.2f}%")
-    if return_reasons is not None:
-        print("Причины возвратов:")
-        print(return_reasons)
-
-    # Использование переменной order_status
-    if order_status is not None:
-        print("\nСтатусы заказов:")
-        print(order_status)
-
-    # Использование переменной forecast_stock
-    if forecast_stock is not None:
-        print("\nПрогнозируемые остатки на складах через 30 дней:")
-        print(forecast_stock)
-    else:
-        print("\nПрогнозируемые остатки недоступны. Проверьте данные о текущих остатках и продажах.")
-
-
-# Запуск функции
 analyzing_sales()
