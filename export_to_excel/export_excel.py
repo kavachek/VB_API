@@ -1,6 +1,5 @@
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
-from classification_of_data.analyzing_everything import analyzing_sales
 
 
 def export_to_excel_with_chart(analysis_results, filename="output.xlsx"):
@@ -8,16 +7,13 @@ def export_to_excel_with_chart(analysis_results, filename="output.xlsx"):
     ws = wb.active
     ws.title = "Города и выручка"
 
-    # Заголовки
     headers = ["Город", "Количество заказов", "Общая выручка", "Средняя цена"]
     ws.append(headers)
 
-    # Получаем данные
     orders_by_city = analysis_results['orders_by_city']
     prices_by_city = analysis_results['prices_by_city']
     merged_data = orders_by_city.merge(prices_by_city, on='warehouseName', how='left')
 
-    # Записываем данные
     for index, row in merged_data.iterrows():
         ws.append([row['warehouseName'], row['order_count'], row['total_revenue'], row['average_price']])
 
@@ -37,9 +33,3 @@ def export_to_excel_with_chart(analysis_results, filename="output.xlsx"):
     ws.add_chart(chart, "H2")
 
     wb.save(filename)
-
-
-if __name__ == "__main__":
-    analysis = analyzing_sales()
-    if analysis:
-        export_to_excel_with_chart(analysis, filename="cities_revenue.xlsx")
