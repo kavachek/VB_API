@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Локальный сайт для отчетов</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="sidebar">
+        <button class="menu-btn" id="onlineBtn">Онлайн показатели</button>
+        <button class="menu-btn green-btn" id="reportBtn">
+            <img src="images/excel.jpg" alt="Excel icon" class="report-icon"> Выгрузка отчетов
+        </button>
+    </div>
+
+    <div id="content">
+        <!-- Выгрузка отчетов -->
+        <div id="reportSection" class="section">
+            <h2>Выгрузка отчетов</h2>
+
+            <label for="startDate">Начальная дата (ГГГГ-ММ-ДД):</label>
+            <input type="text" id="startDate" placeholder="Введите дату (ГГГГ-ММ-ДД)">
+
+            <label for="endDate">Конечная дата (ГГГГ-ММ-ДД):</label>
+            <input type="text" id="endDate" placeholder="Введите дату (ГГГГ-ММ-ДД)">
+            <br><br>
+
+            <button id="generateOrdersBtn">Отчет по заказам</button>
+            <button id="generateStocksBtn">Отчет по остаткам</button>
+            <button id="generateAllBtn">Общий отчет</button>
+            <br><br>
+
+            <label for="savePath">Путь для сохранения:</label>
+            <input type="text" id="savePath" placeholder="Укажите путь">
+            <br>
+            <button id="savePathBtn">Сохранить путь</button>
+        </div>
+
+        <!-- Онлайн показатели - пока пустой -->
+        <div id="onlineSection" class="section">
+            <h2>Онлайн показатели</h2>
+            <p>Здесь будет отображаться информация в будущем.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

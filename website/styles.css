@@ -1,0 +1,66 @@
+/* Основные стили для сайта */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    display: flex;
+}
+
+#sidebar {
+    width: 200px;
+    background-color: #f4f4f4;
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.menu-btn {
+    padding: 10px;
+    width: 100%;
+    margin: 5px 0;
+    border: none;
+    background-color: #ddd;
+    text-align: left;
+    cursor: pointer;
+}
+
+.menu-btn:hover {
+    background-color: #ccc;
+}
+
+.green-btn {
+    background-color: #5cb85c;
+    color: white;
+}
+
+.report-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+#content {
+    margin-left: 220px;
+    padding: 20px;
+    width: calc(100% - 220px);
+}
+
+.section {
+    margin-top: 20px;
+}
+
+/* Стили для ввода текста */
+input[type="text"], input[type="date"] {
+    padding: 5px;
+    margin: 10px 0;
+    width: 250px;
+}
+
+button {
+    padding: 10px;
+    margin: 5px 0;
+    cursor: pointer;
+}
