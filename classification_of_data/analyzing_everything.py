@@ -8,7 +8,9 @@ def analyzing_sales():
     """
     Анализ продаж, заказов, остатков и возвратов с визуализацией и уведомлениями.
     """
-    conn = sqlite3.connect('wildberries.db')
+    # Указываем правильный путь к базе данных
+    db_file = '../classification_of_data/wildberries.db'
+    conn = sqlite3.connect(db_file)
     query = f"SELECT * FROM {'wildberries_data'};"
     df = pd.read_sql_query(query, conn)
     conn.close()
@@ -26,6 +28,7 @@ def analyzing_sales():
     df['week'] = df['date'].dt.isocalendar().week
     df['month'] = df['date'].dt.month
     df['year'] = df['date'].dt.year
+
 
     # Фильтрация данных: оставляем только заказы, которые не были отменены (isCancel = 0)
     df = df[df['isCancel'] == 0]
