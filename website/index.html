@@ -36,7 +36,16 @@
         <!-- Онлайн показатели -->
         <div id="onlineSection" class="section">
             <h2>Онлайн показатели</h2>
-            <p>Здесь будет отображаться информация в будущем.</p>
+            <div id="onlineOrders">
+                <p>Количество заказов за сегодня: <span id="todayOrders">0</span></p>
+                <p>Статистика за месяц:</p>
+                <ul>
+                    <li>Заказы: <span id="monthlyOrders">0</span></li>
+                    <li>Выручка: <span id="monthlyRevenue">0</span></li>
+                </ul>
+                <p>Статистика по городам:</p>
+                <ul id="orderSources"></ul>
+            </div>
         </div>
     </div>
 
