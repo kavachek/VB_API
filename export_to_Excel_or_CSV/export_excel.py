@@ -48,7 +48,6 @@ def export_to_excel_with_charts(analysis_results, filename="output.xlsx"):
         plt.title(f"Показатели для города: {city}")
         plt.ylabel("Значение")
 
-        # Сохраняем график в буфер
         img_buffer = BytesIO()
         plt.savefig(img_buffer, format='png')
         plt.close()
@@ -56,21 +55,16 @@ def export_to_excel_with_charts(analysis_results, filename="output.xlsx"):
         # Вставляем график в Excel
         img_buffer.seek(0)
         img = Image(img_buffer)
-        img.anchor = f'E{img_row}'  # Вставляем график в столбец E
+        img.anchor = f'E{img_row}'
         ws.add_image(img)
-
-        # Переходим к следующей строке
         img_row += 1
 
-    # Сохраняем файл
     wb.save(filename)
     print(f"Файл {filename} успешно создан.")
 
 
 if __name__ == "__main__":
-    # Получаем результаты анализа из первого файла
-    analysis_results = analyzing_sales()
+    analysis = analyzing_sales()
 
-    # Экспортируем данные в Excel
-    if analysis_results:
-        export_to_excel_with_charts(analysis_results, filename="cities_revenue.xlsx")
+    if analysis:
+        export_to_excel_with_charts(analysis, filename="cities_revenue.xlsx")
