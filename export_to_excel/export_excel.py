@@ -1,8 +1,8 @@
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
+import os
 
-
-def export_to_excel_with_chart(analysis_results, filename="output.xlsx"):
+def export_to_excel_with_chart(analysis_results, save_path, filename="output.xlsx"):
     wb = Workbook()
     ws = wb.active
     ws.title = "Города и выручка"
@@ -32,4 +32,5 @@ def export_to_excel_with_chart(analysis_results, filename="output.xlsx"):
     chart.height = 10
     ws.add_chart(chart, "H2")
 
-    wb.save(filename)
+    full_path = os.path.join(save_path, filename)
+    wb.save(full_path)
