@@ -80,7 +80,6 @@ def update_sqlite(api_key, basic_url, db_file='wildberries.db', table_name='wild
             df.to_sql(table_name, conn, if_exists='append', index=False)
 
 
-
 def run_scheduler(api_key, basic_url):
     """
     Запускает планировщик для обновления данных каждый час.
