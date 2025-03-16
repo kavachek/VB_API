@@ -37,8 +37,9 @@ body {
     background: linear-gradient(145deg, #2e7d32, #1b5e20);
 }
 
+/* Обновленный цвет для кнопки "Интеграция" (такой же, как у Excel) */
 #onlineBtn {
-    background: linear-gradient(145deg, #4a90e2, #357ab7);
+    background: linear-gradient(145deg, #2e7d32, #1b5e20); /* Зеленый, как у Excel */
 }
 
 .menu-btn:hover {
@@ -46,8 +47,9 @@ body {
     transform: scale(1.08);
 }
 
+/* Обновленный hover для кнопки "Интеграция" */
 #onlineBtn:hover {
-    background: linear-gradient(145deg, #357ab7, #4a90e2);
+    background: linear-gradient(145deg, #1b5e20, #2e7d32); /* Зеленый, как у Excel (темнее) */
     transform: scale(1.08);
 }
 
@@ -59,6 +61,16 @@ body {
     width: 24px;
     height: 24px;
     margin-right: 10px;
+}
+
+/* Стили для кнопки "Прогнозирование" */
+.blue-btn {
+    background: linear-gradient(145deg, #4285F4, #357AB7); /* Синий цвет */
+}
+
+.blue-btn:hover {
+    background: linear-gradient(145deg, #357AB7, #4285F4); /* Синий цвет (темнее) */
+    transform: scale(1.08);
 }
 
 #content {

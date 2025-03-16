@@ -1,18 +1,30 @@
 document.addEventListener("DOMContentLoaded", function () {
     const onlineBtn = document.getElementById("onlineBtn");
     const reportBtn = document.getElementById("reportBtn");
+    const forecastBtn = document.getElementById("forecastBtn"); // Новая кнопка "Прогнозирование"
+
     const reportSection = document.getElementById("reportSection");
     const onlineSection = document.getElementById("onlineSection");
+    const forecastSection = document.getElementById("forecastSection"); // Новый раздел "Прогнозирование"
 
     // Переключение между разделами
     onlineBtn.addEventListener("click", function () {
         onlineSection.style.display = "block";
         reportSection.style.display = "none";
+        forecastSection.style.display = "none"; // Скрываем раздел "Прогнозирование"
     });
 
     reportBtn.addEventListener("click", function () {
         reportSection.style.display = "block";
         onlineSection.style.display = "none";
+        forecastSection.style.display = "none"; // Скрываем раздел "Прогнозирование"
+    });
+
+    // Переключение на раздел "Прогнозирование"
+    forecastBtn.addEventListener("click", function () {
+        reportSection.style.display = "none";
+        onlineSection.style.display = "none";
+        forecastSection.style.display = "block"; // Показываем раздел "Прогнозирование"
     });
 
     // Преобразование формата даты с ДД.ММ.ГГГГ → ГГГГ-ММ-ДД
@@ -136,4 +148,45 @@ document.addEventListener("DOMContentLoaded", function () {
     // Применяем маску к полям даты
     applyDateMask(document.getElementById("startDate"));
     applyDateMask(document.getElementById("endDate"));
+
+    // Обработка кнопки "Запустить прогнозирование"
+    document.getElementById("runForecastBtn").addEventListener("click", function () {
+        const startDateStr = document.getElementById("startDate").value;
+        const endDateStr = document.getElementById("endDate").value;
+
+        if (!startDateStr || !endDateStr) {
+            alert("Пожалуйста, выберите начальную и конечную дату.");
+            return;
+        }
+
+        const formattedStartDate = convertDateFormat(startDateStr);
+        const formattedEndDate = convertDateFormat(endDateStr);
+
+        if (!formattedStartDate || !formattedEndDate) {
+            alert("Ошибка в формате даты. Используйте ДД.ММ.ГГГГ.");
+            return;
+        }
+
+        fetch("http://127.0.0.1:5000/run_forecast", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                start_date: formattedStartDate,
+                end_date: formattedEndDate
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(`Ошибка: ${data.error}`);
+            } else {
+                alert(data.message || "Прогнозирование запущено.");
+            }
+        })
+        .catch(error => {
+            alert("Ошибка при отправке запроса на сервер.");
+        });
+    });
 });

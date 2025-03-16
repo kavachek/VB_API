@@ -8,9 +8,16 @@
 </head>
 <body>
     <div id="sidebar">
-        <button class="menu-btn" id="onlineBtn">Онлайн показатели</button>
+        <!-- Кнопка "Интеграция" с иконкой Google Таблиц -->
+        <button class="menu-btn" id="onlineBtn">
+            <img src="images/google_tablet.png" alt="Google Sheets" class="excel-icon"> Интеграция
+        </button>
         <button class="menu-btn green-btn" id="reportBtn">
             <img src="images/excel.png" alt="Excel" class="excel-icon"> Выгрузка отчетов
+        </button>
+        <!-- Кнопка "Прогнозирование" с иконкой -->
+        <button class="menu-btn blue-btn" id="forecastBtn">
+            <img src="images/forecasting.png" alt="Прогнозирование" class="excel-icon"> Прогнозирование
         </button>
     </div>
 
@@ -33,18 +40,22 @@
             <button id="savePathBtn">Сохранить путь</button>
         </div>
 
-        <!-- Онлайн показатели -->
+        <!-- Интеграция с Google Таблицей -->
         <div id="onlineSection" class="section">
-            <h2>Онлайн показатели</h2>
+            <h2>Перенеси все данные в Google Таблицу!</h2>
             <div id="onlineOrders">
-                <p>Количество заказов за сегодня: <span id="todayOrders">0</span></p>
-                <p>Статистика за месяц:</p>
-                <ul>
-                    <li>Заказы: <span id="monthlyOrders">0</span></li>
-                    <li>Выручка: <span id="monthlyRevenue">0</span></li>
-                </ul>
-                <p>Статистика по городам:</p>
-                <ul id="orderSources"></ul>
+                <!-- Кнопка для интеграции с Google Таблицей -->
+                <button id="integrateGoogleSheetsBtn" class="report-btn">Интегрировать с Google Таблицей</button>
+            </div>
+        </div>
+
+        <!-- Прогнозирование -->
+        <div id="forecastSection" class="section">
+            <h2>Данная функция еще не до конца стабильна и может 'чудить'.
+            Прошу на нее особо сильно не надеяться.</h2>
+            <div id="forecastContent">
+                <!-- Кнопка для прогнозирования -->
+                <button id="runForecastBtn" class="report-btn">Запустить прогнозирование</button>
             </div>
         </div>
     </div>
