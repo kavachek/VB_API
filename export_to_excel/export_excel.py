@@ -1,36 +1,68 @@
+import os
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
-import os
 
-def export_to_excel_with_chart(analysis_results, save_path, filename="output.xlsx"):
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Города и выручка"
-
-    headers = ["Город", "Количество заказов", "Общая выручка", "Средняя цена"]
-    ws.append(headers)
-
-    orders_by_city = analysis_results['orders_by_city']
-    prices_by_city = analysis_results['prices_by_city']
-    merged_data = orders_by_city.merge(prices_by_city, on='warehouseName', how='left')
-
-    for index, row in merged_data.iterrows():
-        ws.append([row['warehouseName'], row['order_count'], row['total_revenue'], row['average_price']])
-
+def add_chart_and_data(ws, data_start_col, categories_start_col):
+    """Добавляет данные и график в рабочий лист."""
     chart = BarChart()
     chart.title = "Количество заказов по городам"
     chart.x_axis.title = "Город"
     chart.y_axis.title = "Количество заказов"
 
-    data = Reference(ws, min_col=2, min_row=1, max_row=len(merged_data) + 1)
-    categories = Reference(ws, min_col=1, min_row=2, max_row=len(merged_data) + 1)
-
+    data = Reference(ws, min_col=data_start_col, min_row=1, max_row=ws.max_row, max_col=data_start_col)
+    categories = Reference(ws, min_col=categories_start_col, min_row=2, max_row=ws.max_row)
     chart.add_data(data, titles_from_data=True)
     chart.set_categories(categories)
-
-    chart.width = 20
-    chart.height = 10
     ws.add_chart(chart, "H2")
 
+def export_sales_report(sales_data, save_path, start_date, end_date):
+    if not sales_data: return None
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Продажи"
+
+    headers = ["Город", "Количество заказов", "Общая выручка", "Средняя цена"]
+    ws.append(headers)
+
+    orders_by_city = sales_data.get('orders_by_city')
+    prices_by_city = sales_data.get('prices_by_city')
+
+    if orders_by_city is None or prices_by_city is None: return None
+
+    merged_sales = orders_by_city.merge(prices_by_city, on='warehouseName', how='left')
+
+    for i, row in merged_sales.iterrows(): ws.append([row['warehouseName'], row['order_count'],
+                                                      row['total_revenue'], row['average_price']])
+
+    # Добавляем данные и график с использованием общей функции
+    add_chart_and_data(ws, 2, 1)
+
+    filename = f"Продажи {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}.xlsx"
+    full_path = os.path.join(save_path, filename)
+    wb.save(full_path)
+
+
+def export_stocks_report(stocks_data, save_path, start_date, end_date):
+    if not stocks_data: return None
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Остатки"
+
+    headers = ["Город", "Общий остаток"]
+    ws.append(headers)
+
+    stocks_by_city = stocks_data.get('stocks_by_city')
+
+    if stocks_by_city is None:
+        return None
+
+    for i, row in stocks_by_city.iterrows(): ws.append([row['warehouseName'], row['total_stock']])
+
+    # Добавляем данные и график с использованием общей функции
+    add_chart_and_data(ws, 2, 1)
+
+    filename = f"Остатки {start_date.strftime('%Y-%m-%d')} - {end_date.strftime('%Y-%m-%d')}.xlsx"
     full_path = os.path.join(save_path, filename)
     wb.save(full_path)
