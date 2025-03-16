@@ -1,66 +1,185 @@
-/* Основные стили для сайта */
+/* Основные стили */
 body {
     font-family: Arial, sans-serif;
+    background-color: #1e1e1e; /* Темный фон */
+    color: #ffffff;
     margin: 0;
+    padding: 0;
     display: flex;
+    height: 100vh;
 }
 
+/* Боковое меню */
 #sidebar {
-    width: 200px;
-    background-color: #f4f4f4;
+    width: 250px;
+    background-color: #252525;
     padding: 20px;
-    position: fixed;
-    height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    gap: 20px;
 }
 
+/* Кнопки меню */
 .menu-btn {
-    padding: 10px;
     width: 100%;
-    margin: 5px 0;
+    padding: 18px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(145deg, #333, #222);
     border: none;
-    background-color: #ddd;
-    text-align: left;
     cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.menu-btn:hover {
-    background-color: #ccc;
-}
-
+/* Зеленая кнопка для отчетов */
 .green-btn {
-    background-color: #5cb85c;
-    color: white;
+    background: linear-gradient(145deg, #2e7d32, #1b5e20);
 }
 
-.report-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
-    vertical-align: middle;
+/* Кнопка онлайн показателей с синеватым оттенком */
+#onlineBtn {
+    background: linear-gradient(145deg, #4a90e2, #357ab7);
 }
 
+/* Эффект наведения с возвратом */
+.menu-btn:hover {
+    background: linear-gradient(145deg, #444, #333);
+    transform: scale(1.08);
+}
+
+#onlineBtn:hover {
+    background: linear-gradient(145deg, #357ab7, #4a90e2);
+    transform: scale(1.08);
+}
+
+.green-btn:hover {
+    background: linear-gradient(145deg, #1b5e20, #2e7d32);
+}
+
+/* Иконка Excel */
+.excel-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+/* Контентная область */
 #content {
-    margin-left: 220px;
+    flex-grow: 1;
     padding: 20px;
-    width: calc(100% - 220px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Секции контента */
 .section {
-    margin-top: 20px;
+    display: none;
+    width: 100%;
+    max-width: 650px;
+    background: #2b2b2b;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
 }
 
-/* Стили для ввода текста */
-input[type="text"], input[type="date"] {
-    padding: 5px;
-    margin: 10px 0;
-    width: 250px;
+/* Показываем активный раздел */
+.section.active {
+    display: block;
 }
 
-button {
-    padding: 10px;
-    margin: 5px 0;
+/* Заголовки */
+h2 {
+    color: #ffffff;
+}
+
+/* Поля ввода */
+input[type="date"],
+input[type="text"] {
+    width: calc(100% - 20px);
+    padding: 12px;
+    margin: 12px 0;
+    border: none;
+    border-radius: 6px;
+    background-color: #3a3a3a;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+/* Кнопки отчета по заказам, остаткам, общим отчетам */
+.report-btn {
+    width: 30%; /* Примерно 3 см, если ширина контейнера позволяет */
+    padding: 12px;
+    margin: 12px 5px; /* Добавлен отступ между кнопками */
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(145deg, #4b4b4b, #333);
+    border: none;
     cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+}
+
+/* Кнопка сохранения пути */
+#savePathBtn {
+    width: 90%; /* Примерно 9 см */
+    padding: 12px;
+    margin: 12px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(145deg, #4b4b4b, #333);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+}
+
+/* Эффект наведения с переливанием (темного цвета) */
+.report-btn:hover, #savePathBtn:hover {
+    background: linear-gradient(145deg, #3a3a3a, #2d2d2d);
+    transform: scale(1.08);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #sidebar {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
+
+    .menu-btn {
+        flex: 1;
+        margin: 5px;
+    }
+
+    #content {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .section {
+        max-width: 90%;
+    }
+
+    .report-btn {
+        width: 30%; /* Сохраняем пропорции для мобильных устройств */
+    }
+
+    #savePathBtn {
+        width: 90%; /* Сохраняем пропорции для мобильных устройств */
+    }
 }
