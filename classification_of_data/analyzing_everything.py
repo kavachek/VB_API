@@ -4,33 +4,14 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-def fetch_data_from_db(db_file='wildberries.db', table_name='wildberries_data'):
-    """
-    Извлекает данные из SQLite-базы данных.
-
-    :param db_file: Путь к файлу базы данных.
-    :param table_name: Название таблицы.
-    :return: DataFrame с данными.
-    """
-    # Подключаемся к базе данных
-    conn = sqlite3.connect(db_file)
-
-    # Читаем данные в DataFrame
-    query = f"SELECT * FROM {table_name};"
-    df = pd.read_sql_query(query, conn)
-
-    # Закрываем соединение
-    conn.close()
-
-    return df
-
-
 def analyzing_sales():
     """
     Анализ продаж, заказов, остатков и возвратов с визуализацией и уведомлениями.
     """
-    # Чтение данных из базы данных
-    df = fetch_data_from_db()
+    conn = sqlite3.connect('wildberries.db')
+    query = f"SELECT * FROM {'wildberries_data'};"
+    df = pd.read_sql_query(query, conn)
+    conn.close()
 
     # Две проверки на подключение и проверки столбца 'date'
     if df is None or df.empty: return None
