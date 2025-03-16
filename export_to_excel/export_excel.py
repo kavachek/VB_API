@@ -2,6 +2,7 @@ import os
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
 
+
 def add_chart_and_data(ws, data_start_col, categories_start_col):
     """Добавляет данные и график в рабочий лист."""
     chart = BarChart()
@@ -14,6 +15,7 @@ def add_chart_and_data(ws, data_start_col, categories_start_col):
     chart.add_data(data, titles_from_data=True)
     chart.set_categories(categories)
     ws.add_chart(chart, "H2")
+
 
 def export_sales_report(sales_data, save_path, start_date, end_date):
     if not sales_data: return None
@@ -55,8 +57,7 @@ def export_stocks_report(stocks_data, save_path, start_date, end_date):
 
     stocks_by_city = stocks_data.get('stocks_by_city')
 
-    if stocks_by_city is None:
-        return None
+    if stocks_by_city is None: return None
 
     for i, row in stocks_by_city.iterrows(): ws.append([row['warehouseName'], row['total_stock']])
 
