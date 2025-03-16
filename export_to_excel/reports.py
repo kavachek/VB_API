@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from classification_of_data.analyzing_everything import analyzing_sales, analyzing_stocks
 from export_excel import export_sales_report, export_stocks_report
-from export_to_excel.save_path import get_save_path
+from export_to_excel.save_path import save_path
 
 
 def get_date_range():
@@ -20,7 +20,7 @@ def get_date_range():
 
 if __name__ == "__main__":
     start_date, end_date = get_date_range()
-    save_path = get_save_path()
+    save_path = save_path()
 
     os.makedirs(save_path, exist_ok=True)
 

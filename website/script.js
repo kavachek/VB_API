@@ -1,11 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Элементы интерфейса
     const onlineBtn = document.getElementById("onlineBtn");
     const reportBtn = document.getElementById("reportBtn");
     const reportSection = document.getElementById("reportSection");
     const onlineSection = document.getElementById("onlineSection");
 
-    // Переключение секций
     onlineBtn.addEventListener("click", function () {
         onlineSection.style.display = "block";
         reportSection.style.display = "none";
@@ -16,15 +14,13 @@ document.addEventListener("DOMContentLoaded", function () {
         onlineSection.style.display = "none";
     });
 
-    // Функция для форматирования даты в ГГГГ-ММ-ДД
     function formatDate(date) {
         const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Месяц начинается с 0
+        const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     }
 
-    // Функция для обработки клика на кнопки генерации отчета
     function generateReport(type) {
         const startDateStr = document.getElementById("startDate").value;
         const endDateStr = document.getElementById("endDate").value;
@@ -40,11 +36,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Преобразуем строки дат в объекты Date
         const startDate = new Date(startDateStr);
         const endDate = new Date(endDateStr);
 
-        // Форматируем даты в ГГГГ-ММ-ДД
         const formattedStartDate = formatDate(startDate);
         const formattedEndDate = formatDate(endDate);
 
@@ -54,7 +48,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Путь для сохранения:", savePath);
     }
 
-    // Обработчики событий
     document.getElementById("generateOrdersBtn").addEventListener("click", function () {
         generateReport("Заказы");
     });
@@ -69,28 +62,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("savePathBtn").addEventListener("click", function () {
         const savePath = document.getElementById("savePath").value;
-        if (savePath) {
-            console.log("Путь для сохранения сохранен:", savePath);
-        } else {
+
+        if (!savePath) {
             alert("Введите путь для сохранения файлов.");
+            return;
         }
+
+        fetch('http://127.0.0.1:5000/save_path', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ path: savePath }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            alert("Ошибка при отправке запроса на сервер.");
+        });
     });
 
-    // Ограничение ввода для дат
     const startDateInput = document.getElementById("startDate");
     const endDateInput = document.getElementById("endDate");
 
     startDateInput.addEventListener("input", function () {
         const value = this.value;
         if (value.length > 10) {
-            this.value = value.slice(0, 10); // Ограничение длины
+            this.value = value.slice(0, 10);
         }
     });
 
     endDateInput.addEventListener("input", function () {
         const value = this.value;
         if (value.length > 10) {
-            this.value = value.slice(0, 10); // Ограничение длины
+            this.value = value.slice(0, 10);
         }
     });
 });

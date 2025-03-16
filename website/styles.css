@@ -1,7 +1,6 @@
-/* Основные стили */
 body {
     font-family: Arial, sans-serif;
-    background-color: #1e1e1e; /* Темный фон */
+    background-color: #1e1e1e;
     color: #ffffff;
     margin: 0;
     padding: 0;
@@ -9,7 +8,6 @@ body {
     height: 100vh;
 }
 
-/* Боковое меню */
 #sidebar {
     width: 250px;
     background-color: #252525;
@@ -19,7 +17,6 @@ body {
     gap: 20px;
 }
 
-/* Кнопки меню */
 .menu-btn {
     width: 100%;
     padding: 18px;
@@ -36,17 +33,14 @@ body {
     justify-content: center;
 }
 
-/* Зеленая кнопка для отчетов */
 .green-btn {
     background: linear-gradient(145deg, #2e7d32, #1b5e20);
 }
 
-/* Кнопка онлайн показателей с синеватым оттенком */
 #onlineBtn {
     background: linear-gradient(145deg, #4a90e2, #357ab7);
 }
 
-/* Эффект наведения с возвратом */
 .menu-btn:hover {
     background: linear-gradient(145deg, #444, #333);
     transform: scale(1.08);
@@ -61,14 +55,12 @@ body {
     background: linear-gradient(145deg, #1b5e20, #2e7d32);
 }
 
-/* Иконка Excel */
 .excel-icon {
     width: 24px;
     height: 24px;
     margin-right: 10px;
 }
 
-/* Контентная область */
 #content {
     flex-grow: 1;
     padding: 20px;
@@ -77,7 +69,6 @@ body {
     align-items: center;
 }
 
-/* Секции контента */
 .section {
     display: none;
     width: 100%;
@@ -88,17 +79,14 @@ body {
     text-align: center;
 }
 
-/* Показываем активный раздел */
 .section.active {
     display: block;
 }
 
-/* Заголовки */
 h2 {
     color: #ffffff;
 }
 
-/* Поля ввода */
 input[type="date"],
 input[type="text"] {
     width: calc(100% - 20px);
@@ -111,11 +99,10 @@ input[type="text"] {
     font-size: 16px;
 }
 
-/* Кнопки отчета по заказам, остаткам, общим отчетам */
 .report-btn {
-    width: 30%; /* Примерно 3 см, если ширина контейнера позволяет */
+    width: 30%;
     padding: 12px;
-    margin: 12px 5px; /* Добавлен отступ между кнопками */
+    margin: 12px 5px;
     font-size: 16px;
     font-weight: bold;
     color: #ffffff;
@@ -126,9 +113,8 @@ input[type="text"] {
     border-radius: 10px;
 }
 
-/* Кнопка сохранения пути */
 #savePathBtn {
-    width: 90%; /* Примерно 9 см */
+    width: 90%;
     padding: 12px;
     margin: 12px 0;
     font-size: 16px;
@@ -141,13 +127,11 @@ input[type="text"] {
     border-radius: 10px;
 }
 
-/* Эффект наведения с переливанием (темного цвета) */
 .report-btn:hover, #savePathBtn:hover {
     background: linear-gradient(145deg, #3a3a3a, #2d2d2d);
     transform: scale(1.08);
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
     body {
         flex-direction: column;
@@ -176,10 +160,10 @@ input[type="text"] {
     }
 
     .report-btn {
-        width: 30%; /* Сохраняем пропорции для мобильных устройств */
+        width: 30%;
     }
 
     #savePathBtn {
-        width: 90%; /* Сохраняем пропорции для мобильных устройств */
+        width: 90%;
     }
 }
