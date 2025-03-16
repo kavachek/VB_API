@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const reportSection = document.getElementById("reportSection");
     const onlineSection = document.getElementById("onlineSection");
 
+    // Переключение между разделами
     onlineBtn.addEventListener("click", function () {
         onlineSection.style.display = "block";
         reportSection.style.display = "none";
@@ -14,11 +15,13 @@ document.addEventListener("DOMContentLoaded", function () {
         onlineSection.style.display = "none";
     });
 
-    function formatDate(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+    // Преобразование формата даты с ДД.ММ.ГГГГ → ГГГГ-ММ-ДД
+    function convertDateFormat(dateStr) {
+        const parts = dateStr.split(".");
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`; // Преобразуем дд.мм.гггг → гггг-мм-дд
+        }
+        return null;
     }
 
     function generateReport(type) {
@@ -36,30 +39,52 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const startDate = new Date(startDateStr);
-        const endDate = new Date(endDateStr);
+        const formattedStartDate = convertDateFormat(startDateStr);
+        const formattedEndDate = convertDateFormat(endDateStr);
 
-        const formattedStartDate = formatDate(startDate);
-        const formattedEndDate = formatDate(endDate);
+        if (!formattedStartDate || !formattedEndDate) {
+            alert("Ошибка в формате даты. Используйте ДД.ММ.ГГГГ.");
+            return;
+        }
 
-        console.log(`Генерация отчета: ${type}`);
-        console.log("Начальная дата:", formattedStartDate);
-        console.log("Конечная дата:", formattedEndDate);
-        console.log("Путь для сохранения:", savePath);
+        fetch("http://127.0.0.1:5000/generate_report", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                start_date: formattedStartDate,
+                end_date: formattedEndDate,
+                report_type: type
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(`Ошибка: ${data.error}`);
+            } else {
+                alert(data.message || "Отчет создан.");
+            }
+        })
+        .catch(error => {
+            alert("Ошибка при отправке запроса на сервер.");
+        });
     }
 
+    // Кнопки для генерации отчетов
     document.getElementById("generateOrdersBtn").addEventListener("click", function () {
-        generateReport("Заказы");
+        generateReport("sales");
     });
 
     document.getElementById("generateStocksBtn").addEventListener("click", function () {
-        generateReport("Остатки");
+        generateReport("stocks");
     });
 
     document.getElementById("generateAllBtn").addEventListener("click", function () {
-        generateReport("Общий отчет");
+        generateReport("both");
     });
 
+    // Обработка пути для сохранения
     document.getElementById("savePathBtn").addEventListener("click", function () {
         const savePath = document.getElementById("savePath").value;
 
@@ -68,10 +93,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        fetch('http://127.0.0.1:5000/save_path', {
-            method: 'POST',
+        fetch("http://127.0.0.1:5000/save_path", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({ path: savePath }),
         })
@@ -80,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.error) {
                 alert(data.error);
             } else {
-                alert(data.message);
+                alert(data.message || "Путь сохранен успешно.");
             }
         })
         .catch(error => {
@@ -88,20 +113,27 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    const startDateInput = document.getElementById("startDate");
-    const endDateInput = document.getElementById("endDate");
+    // Маска для ввода даты
+    function applyDateMask(inputElement) {
+        inputElement.addEventListener("input", function (event) {
+            let value = this.value.replace(/\D/g, ""); // Удаляем все нечисловые символы
+            if (value.length > 8) value = value.slice(0, 8);
 
-    startDateInput.addEventListener("input", function () {
-        const value = this.value;
-        if (value.length > 10) {
-            this.value = value.slice(0, 10);
-        }
-    });
+            if (value.length >= 2) value = value.slice(0, 2) + "." + value.slice(2);
+            if (value.length >= 5) value = value.slice(0, 5) + "." + value.slice(5);
 
-    endDateInput.addEventListener("input", function () {
-        const value = this.value;
-        if (value.length > 10) {
-            this.value = value.slice(0, 10);
-        }
-    });
+            this.value = value;
+        });
+
+        inputElement.addEventListener("blur", function () {
+            if (!/^\d{2}\.\d{2}\.\d{4}$/.test(this.value)) {
+                alert("Введите дату в формате ДД.ММ.ГГГГ.");
+                this.value = "";
+            }
+        });
+    }
+
+    // Применяем маску к полям даты
+    applyDateMask(document.getElementById("startDate"));
+    applyDateMask(document.getElementById("endDate"));
 });

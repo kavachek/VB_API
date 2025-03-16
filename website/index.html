@@ -15,12 +15,13 @@
     </div>
 
     <div id="content">
+        <!-- Выгрузка отчетов -->
         <div id="reportSection" class="section">
             <h2>Выгрузка отчетов</h2>
             <label for="startDate">Начальная дата:</label>
-            <input type="date" id="startDate">
+            <input type="text" id="startDate" placeholder="ДД.ММ.ГГГГ">
             <label for="endDate">Конечная дата:</label>
-            <input type="date" id="endDate">
+            <input type="text" id="endDate" placeholder="ДД.ММ.ГГГГ">
             <br>
             <button id="generateOrdersBtn" class="report-btn">Отчет по заказам</button>
             <button id="generateStocksBtn" class="report-btn">Отчет по остаткам</button>
@@ -32,6 +33,7 @@
             <button id="savePathBtn">Сохранить путь</button>
         </div>
 
+        <!-- Онлайн показатели -->
         <div id="onlineSection" class="section">
             <h2>Онлайн показатели</h2>
             <p>Здесь будет отображаться информация в будущем.</p>
