@@ -3,7 +3,6 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/classification_of_data/analyzing_everything.py" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/classification_of_data/collecting_information.py" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/classification_of_data/debugging_information.py" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/website/integration.py" dialect="GenericSQL" />
   </component>
 </project>
