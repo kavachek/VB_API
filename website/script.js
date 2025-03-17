@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(response => response.json())
     .then(data => {
         if (data.path) {
-            savePathInput.value = data.path; // Устанавливаем сохранённый путь в поле ввода
+            savePathInput.value = data.path;
         }
     })
     .catch(error => {
@@ -27,27 +27,27 @@ document.addEventListener("DOMContentLoaded", function () {
     onlineBtn.addEventListener("click", function () {
         onlineSection.style.display = "block";
         reportSection.style.display = "none";
-        forecastSection.style.display = "none"; // Скрываем раздел "Прогнозирование"
+        forecastSection.style.display = "none";
     });
 
     reportBtn.addEventListener("click", function () {
         reportSection.style.display = "block";
         onlineSection.style.display = "none";
-        forecastSection.style.display = "none"; // Скрываем раздел "Прогнозирование"
+        forecastSection.style.display = "none";
     });
 
     // Переключение на раздел "Прогнозирование"
     forecastBtn.addEventListener("click", function () {
         reportSection.style.display = "none";
         onlineSection.style.display = "none";
-        forecastSection.style.display = "block"; // Показываем раздел "Прогнозирование"
+        forecastSection.style.display = "block";
     });
 
     // Преобразование формата даты с ДД.ММ.ГГГГ → ГГГГ-ММ-ДД
     function convertDateFormat(dateStr) {
         const parts = dateStr.split(".");
         if (parts.length === 3) {
-            return `${parts[2]}-${parts[1]}-${parts[0]}`; // Преобразуем дд.мм.гггг → гггг-мм-дд
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
         }
         return null;
     }
@@ -119,7 +119,6 @@ document.addEventListener("DOMContentLoaded", function () {
         generateReport("both");
     });
 
-    // Обработка пути для сохранения
     document.getElementById("savePathBtn").addEventListener("click", function () {
         const savePath = document.getElementById("savePath").value;
 
@@ -148,7 +147,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Маска для ввода даты
     function applyDateMask(inputElement) {
         inputElement.addEventListener("input", function (event) {
             let value = this.value.replace(/\D/g, ""); // Удаляем все нечисловые символы
