@@ -18,7 +18,6 @@ def analyzing_sales(start_date=None, end_date=None):
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df = df.dropna(subset=['date'])
 
-    # Приводим start_date и end_date к типу datetime, если они заданы
     if start_date: start_date = pd.to_datetime(start_date)
     if end_date: end_date = pd.to_datetime(end_date)
 

@@ -6,8 +6,7 @@ from openpyxl.chart import BarChart, Reference
 def add_chart_and_data(ws, data_start_col, categories_start_col):
     """Добавляет данные и график в рабочий лист."""
     chart = BarChart()
-    chart.title = "Количество заказов по городам"
-    chart.x_axis.title = "Город"
+    chart.title = "Склад"
     chart.y_axis.title = "Количество заказов"
 
     data = Reference(ws, min_col=data_start_col, min_row=1, max_row=ws.max_row, max_col=data_start_col)
@@ -24,7 +23,7 @@ def export_sales_report(sales_data, save_path, start_date, end_date):
     ws = wb.active
     ws.title = "Продажи"
 
-    headers = ["Город", "Количество заказов", "Общая выручка", "Средняя цена"]
+    headers = ["Склад", "Количество заказов", "Общая выручка", "Средняя цена"]
     ws.append(headers)
 
     orders_by_city = sales_data.get('orders_by_city')
@@ -52,7 +51,7 @@ def export_stocks_report(stocks_data, save_path, start_date, end_date):
     ws = wb.active
     ws.title = "Остатки"
 
-    headers = ["Город", "Общий остаток"]
+    headers = ["Склад", "Общий остаток"]
     ws.append(headers)
 
     stocks_by_city = stocks_data.get('stocks_by_city')

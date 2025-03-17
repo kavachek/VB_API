@@ -1,11 +1,27 @@
 document.addEventListener("DOMContentLoaded", function () {
     const onlineBtn = document.getElementById("onlineBtn");
     const reportBtn = document.getElementById("reportBtn");
-    const forecastBtn = document.getElementById("forecastBtn"); // Новая кнопка "Прогнозирование"
+    const forecastBtn = document.getElementById("forecastBtn");
 
     const reportSection = document.getElementById("reportSection");
     const onlineSection = document.getElementById("onlineSection");
-    const forecastSection = document.getElementById("forecastSection"); // Новый раздел "Прогнозирование"
+    const forecastSection = document.getElementById("forecastSection");
+
+    const savePathInput = document.getElementById("savePath");
+
+    // Проверяем сохранённый путь при загрузке страницы
+    fetch("http://127.0.0.1:5000/get_saved_path", {
+        method: "GET",
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.path) {
+            savePathInput.value = data.path; // Устанавливаем сохранённый путь в поле ввода
+        }
+    })
+    .catch(error => {
+        console.error("Ошибка при получении пути:", error);
+    });
 
     // Переключение между разделами
     onlineBtn.addEventListener("click", function () {
@@ -70,7 +86,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 report_type: type
             }),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || "Ошибка на сервере");
+                });
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.error) {
                 alert(`Ошибка: ${data.error}`);
@@ -79,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         })
         .catch(error => {
-            alert("Ошибка при отправке запроса на сервер.");
+            alert(`Ошибка: ${error.message}`);
         });
     }
 

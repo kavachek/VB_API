@@ -7,9 +7,11 @@ from export_excel import export_sales_report, export_stocks_report
 
 app = Flask(__name__)
 
+# Настройка CORS для всех эндпоинтов
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 def is_writable(directory):
+    """Проверяет, доступна ли директория для записи."""
     test_file = os.path.join(directory, "test_write_permission.tmp")
     try:
         with open(test_file, 'w') as f:
@@ -28,8 +30,13 @@ def get_saved_path():
             if path: return path
     return None
 
+@app.route('/get_saved_path', methods=['GET'])
+def get_saved_path_endpoint():
+    """Возвращает сохранённый путь из файла save_path.txt."""
+    path = get_saved_path()
+    return jsonify({"path": path})
 
-app.route('/save_path', methods=['POST'])
+@app.route('/save_path', methods=['POST'])
 def save_path_to_file():
     """Сохраняет путь в файл save_path.txt."""
     data = request.json
@@ -41,13 +48,14 @@ def save_path_to_file():
         with open('save_path.txt', 'w') as f:
             f.write(path)
         return jsonify({"message": "Путь сохранен успешно."}), 200
-    except Exception as e: return jsonify({"error": f"Ошибка при сохранении пути: {str(e)}"}), 500
-
+    except Exception as e:
+        return jsonify({"error": f"Ошибка при сохранении пути: {str(e)}"}), 500
 
 @app.route('/generate_report', methods=['POST', 'OPTIONS'])
 def generate_report():
     """Генерирует отчет на основе переданных данных."""
-    if request.method == 'OPTIONS': return jsonify(), 200
+    if request.method == 'OPTIONS':
+        return jsonify(), 200  # Обработка предварительного OPTIONS-запроса
 
     data = request.json
 
@@ -55,8 +63,9 @@ def generate_report():
     end_date_str = data.get('end_date')
     report_type = data.get('report_type')
 
-    if not start_date_str or not end_date_str or not report_type: return jsonify({"error": "Не все данные были"
-                                                                                           " переданы."}), 400
+    if not start_date_str or not end_date_str or not report_type:
+        return jsonify({"error": "Не все данные были переданы."}), 400
+
     try:
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
@@ -65,8 +74,8 @@ def generate_report():
     # Получаем сохраненный путь из файла
     save_path_dir = get_saved_path()
 
-    if not save_path_dir: return jsonify({"error": "Путь для сохранения не указан и не сохранен"
-                                                   " в файле save_path.txt."}), 400
+    if not save_path_dir:
+        return jsonify({"error": "Путь для сохранения не указан и не сохранен в файле save_path.txt."}), 400
 
     if not os.path.exists(save_path_dir):
         try:
