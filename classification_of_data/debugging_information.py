@@ -7,7 +7,6 @@ def get_last_date_from_db(db_path="wildberries.db", table_name="wildberries_data
     query = f"SELECT MAX({date_column}) FROM {table_name}"
     cursor.execute(query)
 
-    # Получаем результат
     last_date = cursor.fetchone()[0]
     conn.close()
 
