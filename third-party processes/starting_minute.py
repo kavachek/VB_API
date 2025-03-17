@@ -14,7 +14,7 @@ SCRIPT_DIR_ONE = os.path.dirname(os.path.abspath(COLLECTING_INFO))
 SCRIPT_DIR_TWO = os.path.dirname(os.path.abspath(INTEGRATION))
 SCRIPT_DIR_THREE = os.path.dirname(os.path.abspath(REPORT))
 
-TIMEOUT_COLLECTING = 30
+TIMEOUT_COLLECTING = 40
 TIMEOUT_RETRY = 120
 TIMEOUT_INTEGRATION = 30
 
