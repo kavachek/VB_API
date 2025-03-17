@@ -1,12 +1,22 @@
 import sqlite3
-import csv
 import os
 from datetime import datetime
-import locale
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+import time
 
-BASE_CSV_FILE = "wildberries_report"
+# Настройки для Google Sheets API
+SCOPES = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+CREDS_FILE = 'wbapi-453920-a33f58229e25.json'
+SPREADSHEET_NAME = 'Wildberries Отчет'
 
-locale.setlocale(locale.LC_TIME, 'en_US.UTF-8')
+# Авторизация
+creds = ServiceAccountCredentials.from_json_keyfile_name(CREDS_FILE, SCOPES)
+client = gspread.authorize(creds)
+
+try:
+    spreadsheet = client.create(SPREADSHEET_NAME)
+except gspread.exceptions.APIError: spreadsheet = client.open(SPREADSHEET_NAME)
 
 # Подключаемся к БД
 conn = sqlite3.connect(os.path.realpath('../classification_of_data/wildberries.db'))
@@ -23,10 +33,8 @@ query = """
 cursor.execute(query)
 rows = cursor.fetchall()
 
-# Закрываем соединение с БД
 conn.close()
 
-# Преобразуем данные в удобный формат
 data_by_year = {}
 for row in rows:
     raw_date, country, oblast, region, barcode, category, subject, brand, price = row
@@ -35,53 +43,66 @@ for row in rows:
     if raw_date:
         date = raw_date.split("T")[0]  # Берем только YYYY-MM-DD
         time = raw_date.split("T")[1]  # Берем время после T (HH:MM:SS)
-    else:
-        continue  # Пропускаем записи без даты
+    else: continue
 
-    # Используем английский формат даты для месяца и года
-    year = datetime.strptime(date, "%Y-%m-%d").strftime("%Y")  # Год
-    month_year = datetime.strptime(date, "%Y-%m-%d").strftime("%B %Y")  # Месяц и год на английском
+    year = datetime.strptime(date, "%Y-%m-%d").strftime("%Y")
+    month_year = datetime.strptime(date, "%Y-%m-%d").strftime("%B %Y")
 
     if year not in data_by_year:
         data_by_year[year] = {}
 
     if month_year not in data_by_year[year]:
-        data_by_year[year][month_year] = set()  # Используем множество для уникальности
+        data_by_year[year][month_year] = set()
 
     # Добавляем запись в множество для исключения дубликатов
     data_by_year[year][month_year].add((date, time, country, oblast, region, barcode, category, subject, brand, price))
 
-# Записываем в CSV для каждого года
+# Создаем листы в Google Таблице для каждого года
 for year, months in data_by_year.items():
-    csv_file = f"{BASE_CSV_FILE}_{year}.csv"
+    try:
+        worksheet = spreadsheet.add_worksheet(title=year, rows=10000, cols=20)
+    except gspread.exceptions.APIError: worksheet = spreadsheet.worksheet(year)
 
-    with open(csv_file, "w", newline="", encoding="utf-8-sig") as file:  # Используем utf-8-sig для правильной кодировки
-        writer = csv.writer(file, delimiter=";")  # Добавляем разделитель ";"
+    worksheet.clear()
 
-        # Заголовки
-        writer.writerow(["Месяц",
-                         "Дата",
-                         "Время",
-                         "Страна",
-                         "Область",
-                         "Регион",
-                         "Артикул",
-                         "Категория",
-                         "Тип товара",
-                         "Бренд",
-                         "Финальная цена"])
+    # Заголовки
+    worksheet.append_row(["Месяц",
+                          "Дата",
+                          "Время",
+                          "Страна",
+                          "Область",
+                          "Регион",
+                          "Артикул",
+                          "Категория",
+                          "Тип товара",
+                          "Бренд",
+                          "Финальная цена"])
 
-        # Проходим по месяцам
-        for month, records in months.items():
-            # Записываем месяц и год только один раз
-            writer.writerow([month] + [""] * 9)  # Месяц в первой ячейке, остальное пусто
+    for month, records in months.items():
+        worksheet.append_row([month] + [""] * 9)
 
-            # Сортируем записи внутри месяца по дате и времени
-            sorted_records = sorted(records, key=lambda x: (x[0], x[1]))  # Сортировка по дате и времени
+        # Сортируем записи внутри месяца по дате и времени
+        sorted_records = sorted(records, key=lambda x: (x[0], x[1]))
 
-            # Записываем данные по каждой строке (без дубликатов)
-            for record in sorted_records:
-                date, time, country, oblast, region, barcode, category, subject, brand, price = record
-                writer.writerow([month, date, time, country, oblast, region, barcode, category, subject, brand, price])
+        # Пакетная запись данных
+        batch_size = 100
+        batch = []
 
-    print(f"✅ Data for {year} saved in {csv_file}. Check before uploading to Google Sheets!")
+        for record in sorted_records:
+            date, time, country, oblast, region, barcode, category, subject, brand, price = record
+            batch.append([month, date, time, country, oblast, region, barcode, category, subject, brand, price])
+
+            if len(batch) >= batch_size:
+                worksheet.append_rows(batch)
+                batch = []
+        time.sleep(120)
+        if batch: worksheet.append_rows(batch)
+
+try:
+    default_sheet = spreadsheet.get_worksheet(0)
+    if default_sheet.title == "Sheet1":
+        spreadsheet.del_worksheet(default_sheet)
+except gspread.exceptions.APIError:
+    pass
+
+print(f"✅ Данные успешно перенесены в Google Таблицу: {SPREADSHEET_NAME}")
