@@ -1,11 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     const onlineBtn = document.getElementById("onlineBtn");
     const reportBtn = document.getElementById("reportBtn");
-    const forecastBtn = document.getElementById("forecastBtn");
 
     const reportSection = document.getElementById("reportSection");
     const onlineSection = document.getElementById("onlineSection");
-    const forecastSection = document.getElementById("forecastSection");
 
     const savePathInput = document.getElementById("savePath");
 
@@ -25,19 +23,11 @@ document.addEventListener("DOMContentLoaded", function () {
     onlineBtn.addEventListener("click", function () {
         onlineSection.style.display = "block";
         reportSection.style.display = "none";
-        forecastSection.style.display = "none";
     });
 
     reportBtn.addEventListener("click", function () {
         reportSection.style.display = "block";
         onlineSection.style.display = "none";
-        forecastSection.style.display = "none";
-    });
-
-    forecastBtn.addEventListener("click", function () {
-        reportSection.style.display = "none";
-        onlineSection.style.display = "none";
-        forecastSection.style.display = "block";
     });
 
     function convertDateFormat(dateStr) {
@@ -163,46 +153,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     applyDateMask(document.getElementById("startDate"));
     applyDateMask(document.getElementById("endDate"));
-
-    document.getElementById("runForecastBtn").addEventListener("click", function () {
-        const startDateStr = document.getElementById("startDate").value;
-        const endDateStr = document.getElementById("endDate").value;
-
-        if (!startDateStr || !endDateStr) {
-            alert("Пожалуйста, выберите начальную и конечную дату.");
-            return;
-        }
-
-        const formattedStartDate = convertDateFormat(startDateStr);
-        const formattedEndDate = convertDateFormat(endDateStr);
-
-        if (!formattedStartDate || !formattedEndDate) {
-            alert("Ошибка в формате даты. Используйте ДД.ММ.ГГГГ.");
-            return;
-        }
-
-        fetch("http://127.0.0.1:5000/run_forecast", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                start_date: formattedStartDate,
-                end_date: formattedEndDate
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert(`Ошибка: ${data.error}`);
-            } else {
-                alert(data.message || "Прогнозирование запущено.");
-            }
-        })
-        .catch(error => {
-            alert("Ошибка при отправке запроса на сервер.");
-        });
-    });
 
     document.getElementById("integrateGoogleSheetsBtn").addEventListener("click", function () {
         window.location.href = "https://docs.google.com/spreadsheets/d/1GY62zEbBdg1MuR55gtPQvQkHsxu2Z3vGs9E7MxAhS5A";
