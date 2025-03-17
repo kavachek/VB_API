@@ -9,7 +9,7 @@ from googleapiclient.discovery import build
 SCOPES = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 CREDS_FILE = 'wbapi-453920-a33f58229e25.json'
 SPREADSHEET_NAME = 'Wildberries Отчет'
-SPREADSHEET_ID = '1GY62zEbBdg1MuR55gtPQvQkHsxu2Z3vGs9E7MxAhS5A'  # Укажите ID таблицы
+SPREADSHEET_ID = '1GY62zEbBdg1MuR55gtPQvQkHsxu2Z3vGs9E7MxAhS5A'
 
 # Авторизация
 creds = ServiceAccountCredentials.from_json_keyfile_name(CREDS_FILE, SCOPES)
@@ -18,7 +18,6 @@ client = gspread.authorize(creds)
 # Открываем таблицу по ID
 spreadsheet = client.open_by_key(SPREADSHEET_ID)
 
-# Добавляем доступ для двух почт
 def add_permissions(file_id_param, emails_param):
     drive_service = build('drive', 'v3', credentials=creds)
     for email in emails_param:
@@ -93,7 +92,6 @@ for year, months_data in data_by_year.items():
         worksheet = spreadsheet.add_worksheet(title=year, rows=10000, cols=20)
     except gspread.exceptions.APIError: worksheet = spreadsheet.worksheet(year)
 
-    # Очищаем лист (если он уже существовал)
     worksheet.clear()
 
     # Заголовки
