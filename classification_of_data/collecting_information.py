@@ -3,7 +3,6 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 import time
-import schedule
 from settings.config import API_KEY
 from url_queries.url import BASIC_URL
 
@@ -157,11 +156,6 @@ def run_scheduler(api_key, basic_url):
     """
     create_table()  # Создаем таблицу, если она не существует
     update_sqlite(api_key, basic_url)
-    schedule.every().hour.do(update_sqlite, api_key, basic_url)
-
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
 
 
 def data_param(start_data, end_data, **filter_param):
@@ -183,7 +177,6 @@ def data_param(start_data, end_data, **filter_param):
 
 if __name__ == "__main__":
     create_table()
-
     remove_duplicates()
 
     start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
