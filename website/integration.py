@@ -124,12 +124,8 @@ for year, months_data in data_by_year.items():
 
         # Отправляем все данные одним запросом
         worksheet.append_rows(all_data)
-        print(f"Отправлено {len(all_data)} строк для месяца {month} {year}")
 
 try:
     default_sheet = spreadsheet.get_worksheet(0)
     if default_sheet.title == "Sheet1": spreadsheet.del_worksheet(default_sheet)
 except gspread.exceptions.APIError: pass
-
-print(f"✅ Данные успешно перенесены в Google Таблицу: {SPREADSHEET_NAME}")
-print(f"🔗 Ссылка на таблицу: {spreadsheet.url}")  # Выводим ссылку на таблицу
