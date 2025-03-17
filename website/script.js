@@ -9,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const savePathInput = document.getElementById("savePath");
 
-    // Проверяем сохранённый путь при загрузке страницы
     fetch("http://127.0.0.1:5000/get_saved_path", {
         method: "GET",
     })
@@ -23,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Ошибка при получении пути:", error);
     });
 
-    // Переключение между разделами
     onlineBtn.addEventListener("click", function () {
         onlineSection.style.display = "block";
         reportSection.style.display = "none";
@@ -36,14 +34,12 @@ document.addEventListener("DOMContentLoaded", function () {
         forecastSection.style.display = "none";
     });
 
-    // Переключение на раздел "Прогнозирование"
     forecastBtn.addEventListener("click", function () {
         reportSection.style.display = "none";
         onlineSection.style.display = "none";
         forecastSection.style.display = "block";
     });
 
-    // Преобразование формата даты с ДД.ММ.ГГГГ → ГГГГ-ММ-ДД
     function convertDateFormat(dateStr) {
         const parts = dateStr.split(".");
         if (parts.length === 3) {
@@ -106,7 +102,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Кнопки для генерации отчетов
     document.getElementById("generateOrdersBtn").addEventListener("click", function () {
         generateReport("sales");
     });
@@ -149,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function applyDateMask(inputElement) {
         inputElement.addEventListener("input", function (event) {
-            let value = this.value.replace(/\D/g, ""); // Удаляем все нечисловые символы
+            let value = this.value.replace(/\D/g, "");
             if (value.length > 8) value = value.slice(0, 8);
 
             if (value.length >= 2) value = value.slice(0, 2) + "." + value.slice(2);
@@ -166,11 +161,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Применяем маску к полям даты
     applyDateMask(document.getElementById("startDate"));
     applyDateMask(document.getElementById("endDate"));
 
-    // Обработка кнопки "Запустить прогнозирование"
     document.getElementById("runForecastBtn").addEventListener("click", function () {
         const startDateStr = document.getElementById("startDate").value;
         const endDateStr = document.getElementById("endDate").value;
@@ -209,5 +202,9 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(error => {
             alert("Ошибка при отправке запроса на сервер.");
         });
+    });
+
+    document.getElementById("integrateGoogleSheetsBtn").addEventListener("click", function () {
+        window.location.href = "https://docs.google.com/spreadsheets/d/1GY62zEbBdg1MuR55gtPQvQkHsxu2Z3vGs9E7MxAhS5A";
     });
 });
