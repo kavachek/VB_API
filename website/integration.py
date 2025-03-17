@@ -17,7 +17,6 @@ client = gspread.authorize(creds)
 
 # Открываем таблицу по ID
 spreadsheet = client.open_by_key(SPREADSHEET_ID)
-print(f"Таблица найдена: {spreadsheet.url}")
 
 # Добавляем доступ для двух почт
 def add_permissions(file_id_param, emails_param):
@@ -73,8 +72,23 @@ for row in rows:
     data_by_year[year][month_year].add((date, time_str, country, oblast, region, barcode, category, subject, brand, price))
 
 total_rows_sent = 0
+current_year = datetime.now().year
+current_month = datetime.now().month
 
-for year, months in data_by_year.items():
+for year, months_data in data_by_year.items():
+    int_year = int(year)
+
+    if int_year < current_year: continue
+
+    for month, records in months_data.items():
+        month_name = month.split()[0]
+
+        try:
+            month_now = datetime.strptime(month_name, '%B').month
+        except ValueError: continue
+
+        if int_year == current_year and month_now < current_month: continue
+
     try:
         worksheet = spreadsheet.add_worksheet(title=year, rows=10000, cols=20)
     except gspread.exceptions.APIError: worksheet = spreadsheet.worksheet(year)
@@ -96,7 +110,7 @@ for year, months in data_by_year.items():
                           "Финальная цена"])
 
     # Проходим по месяцам
-    for month, records in months.items():
+    for month, records in months_data.items():
         worksheet.append_row([month] + [""] * 9)
 
         # Сортируем записи внутри месяца по дате и времени
@@ -110,8 +124,12 @@ for year, months in data_by_year.items():
 
         # Отправляем все данные одним запросом
         worksheet.append_rows(all_data)
+        print(f"Отправлено {len(all_data)} строк для месяца {month} {year}")
 
 try:
     default_sheet = spreadsheet.get_worksheet(0)
     if default_sheet.title == "Sheet1": spreadsheet.del_worksheet(default_sheet)
 except gspread.exceptions.APIError: pass
+
+print(f"✅ Данные успешно перенесены в Google Таблицу: {SPREADSHEET_NAME}")
+print(f"🔗 Ссылка на таблицу: {spreadsheet.url}")  # Выводим ссылку на таблицу
