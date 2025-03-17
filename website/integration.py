@@ -9,14 +9,15 @@ from googleapiclient.discovery import build
 SCOPES = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 CREDS_FILE = 'wbapi-453920-a33f58229e25.json'
 SPREADSHEET_NAME = 'Wildberries Отчет'
+SPREADSHEET_ID = '1GY62zEbBdg1MuR55gtPQvQkHsxu2Z3vGs9E7MxAhS5A'  # Укажите ID таблицы
 
 # Авторизация
 creds = ServiceAccountCredentials.from_json_keyfile_name(CREDS_FILE, SCOPES)
 client = gspread.authorize(creds)
 
-try:
-    spreadsheet = client.create(SPREADSHEET_NAME)
-except gspread.exceptions.APIError as e: spreadsheet = client.open(SPREADSHEET_NAME)
+# Открываем таблицу по ID
+spreadsheet = client.open_by_key(SPREADSHEET_ID)
+print(f"Таблица найдена: {spreadsheet.url}")
 
 # Добавляем доступ для двух почт
 def add_permissions(file_id_param, emails_param):
@@ -67,12 +68,12 @@ for row in rows:
     month_year = datetime.strptime(date, "%Y-%m-%d").strftime("%B %Y")
 
     if year not in data_by_year: data_by_year[year] = {}
-
     if month_year not in data_by_year[year]: data_by_year[year][month_year] = set()
 
     data_by_year[year][month_year].add((date, time_str, country, oblast, region, barcode, category, subject, brand, price))
 
-# Создаем листы в Google Таблице для каждого года
+total_rows_sent = 0
+
 for year, months in data_by_year.items():
     try:
         worksheet = spreadsheet.add_worksheet(title=year, rows=10000, cols=20)
@@ -96,19 +97,18 @@ for year, months in data_by_year.items():
 
     # Проходим по месяцам
     for month, records in months.items():
-        # Записываем месяц и год только один раз
         worksheet.append_row([month] + [""] * 9)
 
         # Сортируем записи внутри месяца по дате и времени
         sorted_records = sorted(records, key=lambda x: (x[0], x[1]))
 
-        # Собираем все данные в один список
+        # Сбор всех данных в один список
         all_data = []
         for record in sorted_records:
             date, time_str, country, oblast, region, barcode, category, subject, brand, price = record
             all_data.append([month, date, time_str, country, oblast, region, barcode, category, subject, brand, price])
 
-        # Отправка всех данных одним запросом
+        # Отправляем все данные одним запросом
         worksheet.append_rows(all_data)
 
 try:
