@@ -110,7 +110,7 @@ def save_to_sqlite(data, db_file='wildberries.db', table_name='wildberries_data'
                         # Если запись не существует, вставляем её
                         df_row = pd.DataFrame([row])
                         df_row.to_sql(table_name, conn, if_exists='append', index=False)
-
+                        print(f"Добавлена запись: {row}")  # Логируем добавление записи
             break
         except sqlite3.OperationalError: time.sleep(1)
 
