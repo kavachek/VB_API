@@ -14,9 +14,9 @@ SCRIPT_DIR_ONE = os.path.dirname(os.path.abspath(COLLECTING_INFO))
 SCRIPT_DIR_TWO = os.path.dirname(os.path.abspath(INTEGRATION))
 SCRIPT_DIR_THREE = os.path.dirname(os.path.abspath(REPORT))
 
-TIMEOUT_COLLECTING = 40
+TIMEOUT_COLLECTING = 60
 TIMEOUT_RETRY = 120
-TIMEOUT_INTEGRATION = 30
+TIMEOUT_INTEGRATION = 50
 
 
 def run_script(script, cwd, timeout=None):
