@@ -35,7 +35,7 @@ def add_permissions(file_id_param, emails_param):
 
 file_id = spreadsheet.id
 
-emails = ['kavachek47@gmail.com']  # 'ant115952522@gmail.com'
+emails = ['kavachek47@gmail.com', 'ant115952522@gmail.com']
 add_permissions(file_id, emails)
 
 conn = sqlite3.connect(os.path.realpath('../classification_of_data/wildberries.db'))
