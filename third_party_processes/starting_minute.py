@@ -18,6 +18,7 @@ TIMEOUT_COLLECTING = 40
 TIMEOUT_RETRY = 120
 TIMEOUT_INTEGRATION = 30
 
+
 def run_script(script, cwd, timeout=None):
     try:
         logging.info(f"Запуск скрипта: {script}")
@@ -35,12 +36,14 @@ def run_script(script, cwd, timeout=None):
         logging.error(f"Ошибка при выполнении скрипта {script}: {e}")
         return False
 
+
 def run_report():
     try:
         logging.info(f"Запуск скрипта REPORT (без таймаута)...")
         subprocess.run(['python', REPORT], cwd=SCRIPT_DIR_THREE)
     except Exception as e:
         logging.error(f"Ошибка при выполнении скрипта REPORT: {e}")
+
 
 def run_collecting():
     try:
@@ -53,11 +56,13 @@ def run_collecting():
         logging.error(f"Ошибка в run_collecting: {e}")
         return False
 
+
 def run_integration():
     try:
         run_script(INTEGRATION, SCRIPT_DIR_TWO, TIMEOUT_INTEGRATION)
     except Exception as e:
         logging.error(f"Ошибка в run_integration: {e}")
+
 
 def main():
     with ThreadPoolExecutor() as executor:
@@ -84,6 +89,7 @@ def main():
             except Exception as e:
                 logging.error(f"Ошибка в основном цикле: {e}")
                 time.sleep(60)
+
 
 if __name__ == "__main__":
     main()
